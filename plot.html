@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript">
+        var dps = [[],[]];
+
+        var index = 1;
+        var stop = false;
+				var clientData;
+        var load = function(){
+
+            console.log("in window load");
+            //plot(dps);
+            stop = false;
+            setTimeout(updateData,90);
+        }
+        var updateData = function(){
+            if(stop == false){
+								fetch();
+
+								console.log("=================="+parseInt(clientData));
+                dps[0].push({x:index,y:parseInt(clientData)});//Math.floor(Math.random() * 200)
+                //dps[1].push({x:index,y: 1});
+                index++;
+                plot(dps);
+                setTimeout(updateData,90);
+            }
+        }
+				var fetch = function () {
+						console.log('in fetch');
+						$.get('http://localhost:9898/index', {}, function(data){
+						clientData = data;
+					});
+				}
+		var plot = function (dps) {
+            console.log("in plot function");
+            var chart = new CanvasJS.Chart("chartContainer", {
+                zoomEnabled :true,
+                zoomType :"xy",
+				title: {
+					text: "IoT oscilloscope"
+				},
+                axisX:{
+                    interval: 50,
+                },
+				data: [{
+					type: "spline",
+					markerSize: 1,
+					dataPoints:dps[0]
+				}]
+
+			});
+			chart.render();
+		}
+        var abort = function(){
+            stop = true;
+        }
+	</script>
+	<script src="../../canvasjs.min.js"></script>
+	<title>CanvasJS Example</title>
+</head>
+
+<body>
+				<?php header('Access-Control-Allow-Origin: *'); ?>
+        <div id="chartContainer" style="height: 550px;"></div>
+        <button id="start" onclick="load()">Start</button>
+        <button id="start" onclick="abort()">Stop</button>
+
+
+</body>
+
+</html>
